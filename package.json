@@ -1,0 +1,49 @@
+{
+  "name": "postmsg-rpc",
+  "version": "0.0.0",
+  "description": "Tiny RPC over window.postMessage library",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "run-p build:*",
+    "build:js": "babel src --out-dir lib",
+    "test": "run-s lint test:*",
+    "test:ava": "nyc --reporter=lcov --reporter=text ava",
+    "lint": "standard",
+    "clean": "rm -rf lib/**",
+    "prepublishOnly": "run-s build"
+  },
+  "keywords": [
+    "postMessage",
+    "window",
+    "window.postMessage",
+    "rpc",
+    "api"
+  ],
+  "author": "Alan Shaw",
+  "license": "MIT",
+  "dependencies": {
+    "shortid": "^2.2.8"
+  },
+  "devDependencies": {
+    "ava": "^0.24.0",
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "npm-run-all": "^4.1.2",
+    "nyc": "^11.3.0",
+    "standard": "^10.0.3"
+  },
+  "ava": {
+    "require": [
+      "babel-register"
+    ],
+    "babel": "inherit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tableflip/postmsg-rpc.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tableflip/postmsg-rpc/issues"
+  },
+  "homepage": "https://github.com/tableflip/postmsg-rpc#readme"
+}
