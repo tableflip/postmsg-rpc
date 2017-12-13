@@ -1,2 +1,2 @@
-export { default as createClientFunc } from './client'
-export { default as mapServerFunc } from './server'
+export { default as createClientFunc, createClientCallbackFunc } from './client'
+export { default as mapServerFunc, mapServerCallbackFunc } from './server'
