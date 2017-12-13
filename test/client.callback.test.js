@@ -48,14 +48,13 @@ test.cb('should be cancelable', (t) => {
     postMessage: client.postMessage
   })
 
-  const handle = getFruits(() => t.fail())
+  const handle = getFruits((err) => {
+    t.truthy(err)
+    t.true(err.isCanceled)
+    t.end()
+  })
 
   handle.cancel()
-
-  setTimeout(() => {
-    t.pass()
-    t.end()
-  }, 500)
 })
 
 test.cb('should ignore bad/irrelevant messages', (t) => {

@@ -19,10 +19,10 @@ export default function createClientFunc (funcName, opts) {
       args: args.slice(0, -1)
     }
 
-    let handler
+    let cancel
 
     const response = new Promise((resolve, reject) => {
-      handler = (e) => {
+      const handler = (e) => {
         const data = getMessageData(e)
         if (!data) return
         if (data.sender !== 'postmsg-rpc/server' || data.id !== msg.id) return
@@ -37,11 +37,18 @@ export default function createClientFunc (funcName, opts) {
         resolve(e.data.res)
       }
 
+      cancel = () => {
+        removeListener('message', handler)
+        const err = new Error(`Canceled call to ${funcName}`)
+        err.isCanceled = true
+        reject(err)
+      }
+
       addListener('message', handler)
       postMessage(msg, targetOrigin)
     })
 
-    response.cancel = () => removeListener('message', handler)
+    response.cancel = () => cancel()
 
     return response
   }
@@ -81,9 +88,16 @@ export function createClientCallbackFunc (funcName, opts) {
       cb(null, e.data.res)
     }
 
+    const cancel = () => {
+      removeListener('message', handler)
+      const err = new Error(`Canceled call to ${funcName}`)
+      err.isCanceled = true
+      cb(err)
+    }
+
     addListener('message', handler)
     postMessage(msg, targetOrigin)
 
-    return { cancel: () => removeListener('message', handler) }
+    return { cancel }
   }
 }

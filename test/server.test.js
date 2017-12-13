@@ -10,7 +10,7 @@ test('should pass error back to client', async (t) => {
   serverErr.output = { payload: { additional: 'data' } }
 
   const fruitService = {
-    getFruits () { throw serverErr }
+    getFruits: () => Promise.reject(serverErr)
   }
 
   mapServerFunc('getFruits', fruitService, {

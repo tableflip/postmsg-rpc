@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/tableflip/postmsg-rpc.svg?branch=master)](https://travis-ci.org/tableflip/postmsg-rpc) [![dependencies Status](https://david-dm.org/tableflip/postmsg-rpc/status.svg)](https://david-dm.org/tableflip/postmsg-rpc) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
-> Tiny RPC over window.postMessage library
+> Tiny RPC over [window.postMessage](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage) library
 
 ## Install
 
@@ -62,7 +62,16 @@ The function returned from `createClientFunc` will return a `Promise` when calle
 ```js
 const getFruits = createClientFunc('getFruits')
 const fruitPromise = getFruits()
-fruitPromise.cancel() // now fruitPromise will never fulfil
+
+fruitPromise.cancel()
+
+try {
+  await fruitPromise
+} catch (err) {
+  if (err.isCanceled) {
+    console.log('function call canceled')
+  }
+}
 ```
 
 #### `mapServerFunc(funcName, target, options)`
@@ -99,8 +108,13 @@ Returns an object with a `cancel` method which can be called to cancel an in fli
 
 ```js
 const getFruits = createClientCallbackFunc('getFruits')
-const handle = getFruits((err, fruits) => { /* ... */ })
-handle.cancel() // now the callback will never be called
+const handle = getFruits((err, fruits) => {
+  if (err && err.isCanceled) {
+    console.log('function call canceled')
+  }
+})
+
+handle.cancel()
 ```
 
 #### `mapServerCallbackFunc(funcName, target, options)`

@@ -9,7 +9,7 @@ export default function mapServerFunc (funcName, target, opts) {
   const getTarget = opts.getTarget || (() => target)
   const targetFuncName = opts.targetFuncName || funcName
 
-  const handler = async (e) => {
+  const handler = (e) => {
     const data = getMessageData(e)
     if (!data) return
     if (data.sender !== 'postmsg-rpc/client' || data.func !== funcName) return
@@ -17,17 +17,21 @@ export default function mapServerFunc (funcName, target, opts) {
     const target = getTarget()
     const msg = { sender: 'postmsg-rpc/server', id: data.id }
 
-    try {
-      msg.res = await target[targetFuncName].apply(target, data.args)
-    } catch (err) {
-      msg.err = Object.assign({ message: err.message }, err.output && err.output.payload)
+    target[targetFuncName]
+      .apply(target, data.args)
+      .then((res) => {
+        msg.res = res
+        postMessage(msg, targetOrigin)
+      })
+      .catch((err) => {
+        msg.err = Object.assign({ message: err.message }, err.output && err.output.payload)
 
-      if (process.env.NODE_ENV !== 'production') {
-        msg.err.stack = msg.err.stack || err.stack
-      }
-    }
+        if (process.env.NODE_ENV !== 'production') {
+          msg.err.stack = msg.err.stack || err.stack
+        }
 
-    postMessage(msg, targetOrigin)
+        postMessage(msg, targetOrigin)
+      })
   }
 
   addListener('message', handler)

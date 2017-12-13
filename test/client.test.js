@@ -53,15 +53,12 @@ test('should be cancelable', async (t) => {
 
   fruitPromise.cancel()
 
-  return new Promise(async (resolve) => {
-    // resolve this promise in 2s, unless fruitPromise fulfils (which it shouldn't)
-    setTimeout(() => {
-      t.pass()
-      resolve()
-    }, 500)
+  try {
     await fruitPromise
-    throw new Error('should not fulfil')
-  })
+    t.fail()
+  } catch (err) {
+    t.true(err.isCanceled)
+  }
 })
 
 test('should ignore bad/irrelevant messages', async (t) => {
