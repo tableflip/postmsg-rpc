@@ -53,3 +53,7 @@ export default function caller (funcName, opts) {
     return response
   }
 }
+
+export function call (funcName) {
+  return caller(funcName).apply(null, [].slice.call(arguments, 1))
+}
