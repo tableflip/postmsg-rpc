@@ -51,7 +51,7 @@ const fruits = await getFruits(/*, arg0, arg1, ... */)
 
 #### `expose(funcName, func, options)`
 
-Expose `func` as `funcName` for RPC from other windows. Assumes that the function being called on target returns a promise.
+Expose `func` as `funcName` for RPC from other windows. Assumes that `func` returns a promise.
 
 * `funcName` - the name of the function called on the client
 * `func` - the function that should be called
