@@ -10,13 +10,11 @@ export default function caller (funcName, opts) {
   const getMessageData = opts.getMessageData || ((event) => event.data)
 
   return function () {
-    const args = Array.from(arguments)
-
     const msg = {
       sender: 'postmsg-rpc/client',
       id: shortid(),
       func: funcName,
-      args: args.slice(0, -1)
+      args: Array.from(arguments)
     }
 
     let cancel
