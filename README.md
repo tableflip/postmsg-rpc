@@ -12,7 +12,18 @@ npm install postmsg-rpc
 
 ## Usage
 
-In the window you want to call from (**the "client"**):
+In the window you want to call to (**the "server"**):
+
+```js
+import { expose } from 'postmsg-rpc'
+
+const fruitService = { getFruits: () => new Promise(/* ... */) }
+
+// Expose this function for RPC to other windows
+expose('getFruits', fruitService.getFruits)
+```
+
+In the other window (**the "client"**):
 
 ```js
 import { caller } from 'postmsg-rpc'
@@ -21,17 +32,6 @@ import { caller } from 'postmsg-rpc'
 const getFruits = caller('getFruits')
 
 const fruits = await getFruits() // Wait for the fruits to ripen
-```
-
-In the other window (**the "server"**):
-
-```js
-import { expose } from 'postmsg-rpc'
-
-const fruitService = { getFruits: () => new Promise(/* ... */) }
-
-// Map "calls" to this function name (over postMessage) to a function
-expose('getFruits', fruitService.getFruits)
 ```
 
 ## API
