@@ -1,4 +1,4 @@
-export default function mapServerFunc (funcName, func, opts) {
+export default function expose (funcName, func, opts) {
   opts = opts || {}
 
   const addListener = opts.addListener || window.addEventListener
@@ -6,6 +6,7 @@ export default function mapServerFunc (funcName, func, opts) {
   const postMessage = opts.postMessage || window.postMessage
   const targetOrigin = opts.targetOrigin || '*'
   const getMessageData = opts.getMessageData || ((event) => event.data)
+  const isCallback = opts.isCallback || false
 
   const handler = (e) => {
     const data = getMessageData(e)
@@ -14,57 +15,29 @@ export default function mapServerFunc (funcName, func, opts) {
 
     const msg = { sender: 'postmsg-rpc/server', id: data.id }
 
-    func
-      .apply(null, data.args)
-      .then((res) => {
-        msg.res = res
-        postMessage(msg, targetOrigin)
-      })
-      .catch((err) => {
-        msg.err = Object.assign({ message: err.message }, err.output && err.output.payload)
+    const onSuccess = (res) => {
+      msg.res = res
+      postMessage(msg, targetOrigin)
+    }
 
-        if (process.env.NODE_ENV !== 'production') {
-          msg.err.stack = msg.err.stack || err.stack
-        }
+    const onError = (err) => {
+      msg.err = Object.assign({ message: err.message }, err.output && err.output.payload)
 
-        postMessage(msg, targetOrigin)
-      })
-  }
-
-  addListener('message', handler)
-
-  return { close: () => removeListener('message', handler) }
-}
-
-export function mapServerCallbackFunc (funcName, func, opts) {
-  opts = opts || {}
-
-  const addListener = opts.addListener || window.addEventListener
-  const removeListener = opts.removeListener || window.removeEventListener
-  const postMessage = opts.postMessage || window.postMessage
-  const targetOrigin = opts.targetOrigin || '*'
-  const getMessageData = opts.getMessageData || ((event) => event.data)
-
-  const handler = (e) => {
-    const data = getMessageData(e)
-    if (!data) return
-    if (data.sender !== 'postmsg-rpc/client' || data.func !== funcName) return
-
-    const cb = (err, res) => {
-      const msg = { sender: 'postmsg-rpc/server', id: data.id, res }
-
-      if (err) {
-        msg.err = Object.assign({ message: err.message }, err.output && err.output.payload)
-
-        if (process.env.NODE_ENV !== 'production') {
-          msg.err.stack = msg.err.stack || err.stack
-        }
+      if (process.env.NODE_ENV !== 'production') {
+        msg.err.stack = msg.err.stack || err.stack
       }
 
       postMessage(msg, targetOrigin)
     }
 
-    func.apply(null, data.args.concat(cb))
+    if (isCallback) {
+      func.apply(null, data.args.concat((err, res) => {
+        if (err) return onError(err)
+        onSuccess(res)
+      }))
+    } else {
+      func.apply(null, data.args).then(onSuccess).catch(onError)
+    }
   }
 
   addListener('message', handler)

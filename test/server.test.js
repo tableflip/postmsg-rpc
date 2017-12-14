@@ -1,5 +1,5 @@
 import test from 'ava'
-import { createClientFunc, mapServerFunc } from '../src/index'
+import { caller, expose } from '../src/index'
 import fakeWindows from './helpers/fake-windows'
 import Fruits from './fixtures/fruits.json'
 
@@ -13,13 +13,13 @@ test('should pass error back to client', async (t) => {
     getFruits: () => Promise.reject(serverErr)
   }
 
-  mapServerFunc('getFruits', fruitService.getFruits, {
+  expose('getFruits', fruitService.getFruits, {
     addListener: server.addEventListener,
     removeListener: server.removeEventListener,
     postMessage: server.postMessage
   })
 
-  const getFruits = createClientFunc('getFruits', {
+  const getFruits = caller('getFruits', {
     addListener: client.addEventListener,
     removeListener: client.removeEventListener,
     postMessage: client.postMessage
@@ -44,13 +44,13 @@ test('should close', async (t) => {
     getFruits: () => Promise.resolve(Fruits)
   }
 
-  const serverHandle = mapServerFunc('getFruits', fruitService.getFruits, {
+  const serverHandle = expose('getFruits', fruitService.getFruits, {
     addListener: server.addEventListener,
     removeListener: server.removeEventListener,
     postMessage: server.postMessage
   })
 
-  const getFruits = createClientFunc('getFruits', {
+  const getFruits = caller('getFruits', {
     addListener: client.addEventListener,
     removeListener: client.removeEventListener,
     postMessage: client.postMessage
@@ -86,13 +86,13 @@ test('should ignore bad/irrelevant messages', async (t) => {
     getFruits: () => new Promise((resolve) => setTimeout(() => resolve(Fruits), 500))
   }
 
-  mapServerFunc('getFruits', fruitService.getFruits, {
+  expose('getFruits', fruitService.getFruits, {
     addListener: server.addEventListener,
     removeListener: server.removeEventListener,
     postMessage: server.postMessage
   })
 
-  const getFruits = createClientFunc('getFruits', {
+  const getFruits = caller('getFruits', {
     addListener: client.addEventListener,
     removeListener: client.removeEventListener,
     postMessage: client.postMessage

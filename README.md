@@ -15,10 +15,10 @@ npm install postmsg-rpc
 In the window you want to call from (**the "client"**):
 
 ```js
-import { createClientFunc } from 'postmsg-rpc'
+import { caller } from 'postmsg-rpc'
 
 // Create a function that uses postMessage to call a function in a different window
-const getFruits = createClientFunc('getFruits')
+const getFruits = caller('getFruits')
 
 const fruits = await getFruits() // Wait for the fruits to ripen
 ```
@@ -26,19 +26,17 @@ const fruits = await getFruits() // Wait for the fruits to ripen
 In the other window (**the "server"**):
 
 ```js
-import { mapServerFunc } from 'postmsg-rpc'
+import { expose } from 'postmsg-rpc'
 
 const fruitService = { getFruits: () => new Promise(/* ... */) }
 
 // Map "calls" to this function name (over postMessage) to a function
-mapServerFunc('getFruits', fruitService.getFruits)
+expose('getFruits', fruitService.getFruits)
 ```
 
 ## API
 
-### Async/await
-
-#### `createClientFunc(funcName, options)`
+#### `caller(funcName, options)`
 
 Create a function that uses postMessage to call a function in a different window.
 
@@ -60,7 +58,7 @@ The following options are for use with other similar messaging systems, for exam
 The function returned from `createClientFunc` will return a `Promise` when called so can be `await`ed or used in the usual way (`then`/`catch`). The `Promise` returned has an additional property `cancel` which can be called to cancel an in flight request e.g.
 
 ```js
-const getFruits = createClientFunc('getFruits')
+const getFruits = caller('getFruits')
 const fruitPromise = getFruits()
 
 fruitPromise.cancel()
@@ -74,7 +72,7 @@ try {
 }
 ```
 
-#### `mapServerFunc(funcName, func, options)`
+#### `expose(funcName, func, options)`
 
 Map "calls" to `funcName` (over postMessage) to a function. Assumes that the function being called on target returns a promise.
 
@@ -82,6 +80,8 @@ Map "calls" to `funcName` (over postMessage) to a function. Assumes that the fun
 * `func` - the function should be called
 * `options.targetOrigin` - passed to postMessage (see [postMessage docs](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage) for more info)
     * default `'*'`
+* `options.isCallback` - set to true if `func` takes a node style callback instead of returning a promise
+    * default `false`
 
 The following options are for use with other similar messaging systems, for example when using [message passing in browser extensions](https://developer.chrome.com/extensions/messaging) or for testing:
 
@@ -95,29 +95,6 @@ The following options are for use with other similar messaging systems, for exam
     * default `(e) => e.data`
 
 Returns an object with a `close` method to stop the server from listening to messages.
-
-### Callbacks
-
-#### `createClientCallbackFunc(funcName, options)`
-
-Similar to `createClientFunc` except the function it creates expects to be passed a callback.
-
-Returns an object with a `cancel` method which can be called to cancel an in flight request e.g.
-
-```js
-const getFruits = createClientCallbackFunc('getFruits')
-const handle = getFruits((err, fruits) => {
-  if (err && err.isCanceled) {
-    console.log('function call canceled')
-  }
-})
-
-handle.cancel()
-```
-
-#### `mapServerCallbackFunc(funcName, target, options)`
-
-Similar to `mapServerFunc` except it is assumed that the function being called requires a callback.
 
 ---
 A [(╯°□°）╯︵TABLEFLIP](https://tableflip.io) side project.

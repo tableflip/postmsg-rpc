@@ -1,9 +1,9 @@
 import test from 'ava'
-import { createClientCallbackFunc, mapServerCallbackFunc } from '../src/index'
+import { caller, expose } from '../src/index'
 import fakeWindows from './helpers/fake-windows'
 import Fruits from './fixtures/fruits.json'
 
-test.cb('should pass error back to client', (t) => {
+test('should pass error back to client', async (t) => {
   const [ server, client ] = fakeWindows()
 
   const serverErr = new Error('Boom')
@@ -13,90 +13,95 @@ test.cb('should pass error back to client', (t) => {
     getFruits (cb) { process.nextTick(() => cb(serverErr)) }
   }
 
-  mapServerCallbackFunc('getFruits', fruitService.getFruits, {
+  expose('getFruits', fruitService.getFruits, {
     addListener: server.addEventListener,
     removeListener: server.removeEventListener,
-    postMessage: server.postMessage
+    postMessage: server.postMessage,
+    isCallback: true
   })
 
-  const getFruits = createClientCallbackFunc('getFruits', {
+  const getFruits = caller('getFruits', {
     addListener: client.addEventListener,
     removeListener: client.removeEventListener,
     postMessage: client.postMessage
   })
 
-  getFruits((err) => {
-    t.truthy(err)
+  try {
+    await getFruits()
+    t.fail() // expected to throw
+  } catch (err) {
     t.is(err.message, serverErr.message)
 
     Object.keys(serverErr.output.payload).forEach((key) => {
       t.is(err[key], serverErr.output.payload[key])
     })
-
-    t.end()
-  })
+  }
 })
 
-test.cb('should close', (t) => {
+test('should close', async (t) => {
   const [ server, client ] = fakeWindows()
 
   const fruitService = {
     getFruits: (cb) => process.nextTick(() => cb(null, Fruits))
   }
 
-  const serverHandle = mapServerCallbackFunc('getFruits', fruitService.getFruits, {
+  const serverHandle = expose('getFruits', fruitService.getFruits, {
     addListener: server.addEventListener,
     removeListener: server.removeEventListener,
-    postMessage: server.postMessage
+    postMessage: server.postMessage,
+    isCallback: true
   })
 
-  const getFruits = createClientCallbackFunc('getFruits', {
+  const getFruits = caller('getFruits', {
     addListener: client.addEventListener,
     removeListener: client.removeEventListener,
     postMessage: client.postMessage
   })
 
-  getFruits((err, fruits) => {
-    t.ifError(err)
-    t.deepEqual(fruits, Fruits)
+  const fruits = await getFruits()
 
-    // Stop listening for requests for fruity treats
-    serverHandle.close()
+  t.deepEqual(fruits, Fruits)
 
-    getFruits(() => t.fail())
+  // Stop listening for requests for fruity treats
+  serverHandle.close()
+
+  return new Promise(async (resolve) => {
+    // Try again now it's closed
+    const fruitPromise = getFruits()
 
     setTimeout(() => {
       // Ok so it's probably not going to respond, this is pass!
       t.pass()
-      t.end()
+      resolve()
     }, 500)
+
+    // Try to wait for the response
+    await fruitPromise
+    throw new Error('should not fulfil')
   })
 })
 
-test.cb('should ignore bad/irrelevant messages', (t) => {
+test('should ignore bad/irrelevant messages', async (t) => {
   const [ server, client ] = fakeWindows()
 
   const fruitService = {
     getFruits: (cb) => setTimeout(() => cb(null, Fruits), 500)
   }
 
-  mapServerCallbackFunc('getFruits', fruitService.getFruits, {
+  expose('getFruits', fruitService.getFruits, {
     addListener: server.addEventListener,
     removeListener: server.removeEventListener,
-    postMessage: server.postMessage
+    postMessage: server.postMessage,
+    isCallback: true
   })
 
-  const getFruits = createClientCallbackFunc('getFruits', {
+  const getFruits = caller('getFruits', {
     addListener: client.addEventListener,
     removeListener: client.removeEventListener,
     postMessage: client.postMessage
   })
 
-  getFruits((err, fruits) => {
-    t.ifError(err)
-    t.deepEqual(fruits, Fruits)
-    t.end()
-  })
+  const fruitPromise = getFruits()
 
   // Inbetween, lets send irrelevant messages that should be ignored
   server.listeners.forEach(l => {
@@ -104,4 +109,8 @@ test.cb('should ignore bad/irrelevant messages', (t) => {
     l({ data: { sender: 'bogus' } })
     l({ data: { id: 'wrong' } })
   })
+
+  const fruits = await fruitPromise
+
+  t.deepEqual(fruits, Fruits)
 })
