@@ -13,7 +13,7 @@ test('should pass error back to client', async (t) => {
     getFruits: () => Promise.reject(serverErr)
   }
 
-  mapServerFunc('getFruits', fruitService, {
+  mapServerFunc('getFruits', fruitService.getFruits, {
     addListener: server.addEventListener,
     removeListener: server.removeEventListener,
     postMessage: server.postMessage
@@ -44,7 +44,7 @@ test('should close', async (t) => {
     getFruits: () => Promise.resolve(Fruits)
   }
 
-  const serverHandle = mapServerFunc('getFruits', fruitService, {
+  const serverHandle = mapServerFunc('getFruits', fruitService.getFruits, {
     addListener: server.addEventListener,
     removeListener: server.removeEventListener,
     postMessage: server.postMessage
@@ -86,7 +86,7 @@ test('should ignore bad/irrelevant messages', async (t) => {
     getFruits: () => new Promise((resolve) => setTimeout(() => resolve(Fruits), 500))
   }
 
-  mapServerFunc('getFruits', fruitService, {
+  mapServerFunc('getFruits', fruitService.getFruits, {
     addListener: server.addEventListener,
     removeListener: server.removeEventListener,
     postMessage: server.postMessage

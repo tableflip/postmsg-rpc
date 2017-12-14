@@ -30,8 +30,8 @@ import { mapServerFunc } from 'postmsg-rpc'
 
 const fruitService = { getFruits: () => new Promise(/* ... */) }
 
-// Map "calls" to this function (over postMessage) to a function on this object
-mapServerFunc('getFruits', fruitService)
+// Map "calls" to this function name (over postMessage) to a function
+mapServerFunc('getFruits', fruitService.getFruits)
 ```
 
 ## API
@@ -74,16 +74,14 @@ try {
 }
 ```
 
-#### `mapServerFunc(funcName, target, options)`
+#### `mapServerFunc(funcName, func, options)`
 
-Map "calls" to `funcName` (over postMessage) to a function on `target`. Assumes that the function being called on target returns a promise.
+Map "calls" to `funcName` (over postMessage) to a function. Assumes that the function being called on target returns a promise.
 
 * `funcName` - the name of the function called on the client
-* `target` - the object on which the function should be called i.e. `target[funcName]()`
+* `func` - the function should be called
 * `options.targetOrigin` - passed to postMessage (see [postMessage docs](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage) for more info)
     * default `'*'`
-* `options.targetFuncName` - the function name on the target (if it differs from `funcName`)
-* `options.getTarget` - a function that returns the target (useful if your target changes and you don't want to have to close/re-map each time)
 
 The following options are for use with other similar messaging systems, for example when using [message passing in browser extensions](https://developer.chrome.com/extensions/messaging) or for testing:
 
@@ -119,7 +117,7 @@ handle.cancel()
 
 #### `mapServerCallbackFunc(funcName, target, options)`
 
-Similar to `mapServerFunc` except it is assumed that the function being called on target requires a callback.
+Similar to `mapServerFunc` except it is assumed that the function being called requires a callback.
 
 ---
 A [(╯°□°）╯︵TABLEFLIP](https://tableflip.io) side project.

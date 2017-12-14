@@ -10,7 +10,7 @@ test.cb('should fetch data from remote', (t) => {
     getFruits: (cb) => process.nextTick(() => cb(null, Fruits))
   }
 
-  mapServerCallbackFunc('getFruits', fruitService, {
+  mapServerCallbackFunc('getFruits', fruitService.getFruits, {
     addListener: server.addEventListener,
     removeListener: server.removeEventListener,
     postMessage: server.postMessage
@@ -36,7 +36,7 @@ test.cb('should be cancelable', (t) => {
     getFruits: (cb) => setTimeout(() => cb(null, Fruits), 250)
   }
 
-  mapServerCallbackFunc('getFruits', fruitService, {
+  mapServerCallbackFunc('getFruits', fruitService.getFruits, {
     addListener: server.addEventListener,
     removeListener: server.removeEventListener,
     postMessage: server.postMessage
@@ -64,7 +64,7 @@ test.cb('should ignore bad/irrelevant messages', (t) => {
     getFruits: (cb) => setTimeout(() => cb(null, Fruits), 500)
   }
 
-  mapServerCallbackFunc('getFruits', fruitService, {
+  mapServerCallbackFunc('getFruits', fruitService.getFruits, {
     addListener: server.addEventListener,
     removeListener: server.removeEventListener,
     postMessage: server.postMessage

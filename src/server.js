@@ -1,4 +1,4 @@
-export default function mapServerFunc (funcName, target, opts) {
+export default function mapServerFunc (funcName, func, opts) {
   opts = opts || {}
 
   const addListener = opts.addListener || window.addEventListener
@@ -6,19 +6,16 @@ export default function mapServerFunc (funcName, target, opts) {
   const postMessage = opts.postMessage || window.postMessage
   const targetOrigin = opts.targetOrigin || '*'
   const getMessageData = opts.getMessageData || ((event) => event.data)
-  const getTarget = opts.getTarget || (() => target)
-  const targetFuncName = opts.targetFuncName || funcName
 
   const handler = (e) => {
     const data = getMessageData(e)
     if (!data) return
     if (data.sender !== 'postmsg-rpc/client' || data.func !== funcName) return
 
-    const target = getTarget()
     const msg = { sender: 'postmsg-rpc/server', id: data.id }
 
-    target[targetFuncName]
-      .apply(target, data.args)
+    func
+      .apply(null, data.args)
       .then((res) => {
         msg.res = res
         postMessage(msg, targetOrigin)
@@ -39,7 +36,7 @@ export default function mapServerFunc (funcName, target, opts) {
   return { close: () => removeListener('message', handler) }
 }
 
-export function mapServerCallbackFunc (funcName, target, opts) {
+export function mapServerCallbackFunc (funcName, func, opts) {
   opts = opts || {}
 
   const addListener = opts.addListener || window.addEventListener
@@ -47,8 +44,6 @@ export function mapServerCallbackFunc (funcName, target, opts) {
   const postMessage = opts.postMessage || window.postMessage
   const targetOrigin = opts.targetOrigin || '*'
   const getMessageData = opts.getMessageData || ((event) => event.data)
-  const getTarget = opts.getTarget || (() => target)
-  const targetFuncName = opts.targetFuncName || funcName
 
   const handler = (e) => {
     const data = getMessageData(e)
@@ -69,8 +64,7 @@ export function mapServerCallbackFunc (funcName, target, opts) {
       postMessage(msg, targetOrigin)
     }
 
-    const target = getTarget()
-    target[targetFuncName].apply(target, data.args.concat(cb))
+    func.apply(null, data.args.concat(cb))
   }
 
   addListener('message', handler)

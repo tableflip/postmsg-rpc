@@ -13,7 +13,7 @@ test.cb('should pass error back to client', (t) => {
     getFruits (cb) { process.nextTick(() => cb(serverErr)) }
   }
 
-  mapServerCallbackFunc('getFruits', fruitService, {
+  mapServerCallbackFunc('getFruits', fruitService.getFruits, {
     addListener: server.addEventListener,
     removeListener: server.removeEventListener,
     postMessage: server.postMessage
@@ -44,7 +44,7 @@ test.cb('should close', (t) => {
     getFruits: (cb) => process.nextTick(() => cb(null, Fruits))
   }
 
-  const serverHandle = mapServerCallbackFunc('getFruits', fruitService, {
+  const serverHandle = mapServerCallbackFunc('getFruits', fruitService.getFruits, {
     addListener: server.addEventListener,
     removeListener: server.removeEventListener,
     postMessage: server.postMessage
@@ -80,7 +80,7 @@ test.cb('should ignore bad/irrelevant messages', (t) => {
     getFruits: (cb) => setTimeout(() => cb(null, Fruits), 500)
   }
 
-  mapServerCallbackFunc('getFruits', fruitService, {
+  mapServerCallbackFunc('getFruits', fruitService.getFruits, {
     addListener: server.addEventListener,
     removeListener: server.removeEventListener,
     postMessage: server.postMessage
