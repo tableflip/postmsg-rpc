@@ -17,7 +17,9 @@ In the window you want to call to (**the "server"**):
 ```js
 import { expose } from 'postmsg-rpc'
 
-const fruitService = { getFruits: () => new Promise(/* ... */) }
+const fruitService = {
+  getFruits: (/* arg0, arg1, ... */) => new Promise(/* ... */)
+}
 
 // Expose this function for RPC from other windows
 expose('getFruits', fruitService.getFruits)
@@ -34,7 +36,7 @@ const fruits = await call('getFruits'/*, arg0, arg1, ... */)
 
 ### Advanced usage
 
-Use `caller` to create a function that uses postMessage to call a function in a different window. It also allows you to pass options (see docs below).
+Use `caller` to create a function that uses postMessage to call an exposed function in a different window. It also allows you to pass options (see docs below).
 
 ```js
 import { caller } from 'postmsg-rpc'
@@ -52,7 +54,7 @@ const fruits = await getFruits(/*, arg0, arg1, ... */)
 Expose `func` as `funcName` for RPC from other windows. Assumes that the function being called on target returns a promise.
 
 * `funcName` - the name of the function called on the client
-* `func` - the function should be called
+* `func` - the function that should be called
 * `options.targetOrigin` - passed to postMessage (see [postMessage docs](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage) for more info)
     * default `'*'`
 * `options.isCallback` - set to true if `func` takes a node style callback instead of returning a promise
