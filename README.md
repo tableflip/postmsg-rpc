@@ -114,5 +114,13 @@ The following options are for use with other similar messaging systems, for exam
 * `options.getMessageData` - a function that extracts data from the event object passed to a `message` event handler
     * default `(e) => e.data`
 
+## Contribute
+
+Feel free to dive in! [Open an issue](https://github.com/tableflip/postmsg-rpc/issues/new) or submit PRs.
+
+## License
+
+[MIT](LICENSE) © Alan Shaw
+
 ---
 A [(╯°□°）╯︵TABLEFLIP](https://tableflip.io) side project.
