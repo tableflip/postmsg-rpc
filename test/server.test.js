@@ -111,3 +111,25 @@ test('should ignore bad/irrelevant messages', async (t) => {
 
   t.deepEqual(fruits, Fruits)
 })
+
+test('should allow non promise return value', async (t) => {
+  const [ server, client ] = fakeWindows()
+
+  const fruitService = {
+    getFruits: () => Fruits // sync API on the server
+  }
+
+  expose('getFruits', fruitService.getFruits, {
+    addListener: server.addEventListener,
+    removeListener: server.removeEventListener,
+    postMessage: server.postMessage
+  })
+
+  const getFruits = caller('getFruits', {
+    addListener: client.addEventListener,
+    removeListener: client.removeEventListener,
+    postMessage: client.postMessage
+  })
+
+  t.deepEqual(await getFruits(), Fruits)
+})

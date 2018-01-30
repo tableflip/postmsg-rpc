@@ -36,7 +36,8 @@ export default function expose (funcName, func, opts) {
         onSuccess(res)
       }))
     } else {
-      func.apply(null, data.args).then(onSuccess).catch(onError)
+      const res = func.apply(null, data.args)
+      Promise.resolve(res).then(onSuccess).catch(onError)
     }
   }
 
