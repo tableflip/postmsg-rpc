@@ -54,11 +54,13 @@ const fruits = await getFruits(/*, arg0, arg1, ... */)
 Expose `func` as `funcName` for RPC from other windows. Assumes that the function being called on target returns a promise.
 
 * `funcName` - the name of the function called on the client
-* `func` - the function that should be called
+* `func` - the function that should be called. Should be synchronous _or_ return a promise. For callbacks, pass `options.isCallback`
 * `options.targetOrigin` - passed to postMessage (see [postMessage docs](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage) for more info)
     * default `'*'`
 * `options.isCallback` - set to true if `func` takes a node style callback instead of returning a promise
     * default `false`
+* `options.postMessage` - function that posts a message. e.g. `document.querySelector('iframe').contentWindow.postMessage` for exposing functions to an iframe or `window.parent.postMessage` for exposing functions from an iframe to a parent window
+    * default `window.postMessage`
 
 The following options are for use with other similar messaging systems, for example when using [message passing in browser extensions](https://developer.chrome.com/extensions/messaging) or for testing:
 
@@ -66,8 +68,6 @@ The following options are for use with other similar messaging systems, for exam
     * default `window.addEventListener`
 * `options.removeListener` - function that removes a listener
     * default `window.removeEventListener`
-* `options.postMessage` - function that posts a message
-    * default `window.postMessage`
 * `options.getMessageData` - a function that extracts data from the event object passed to a `message` event handler
     * default `(e) => e.data`
 
@@ -102,6 +102,8 @@ Create a function that uses postMessage to call an exposed function in a differe
 * `funcName` - the name of the function to call
 * `options.targetOrigin` - passed to postMessage (see [postMessage docs](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage) for more info)
     * default `'*'`
+* `options.postMessage` - function that posts a message. e.g. `document.querySelector('iframe').contentWindow.postMessage` for calling functions in an iframe or `window.parent.postMessage` for calling functions in a parent window from an iframe
+    * default `window.postMessage`
 
 The following options are for use with other similar messaging systems, for example when using [message passing in browser extensions](https://developer.chrome.com/extensions/messaging) or for testing:
 
@@ -109,8 +111,6 @@ The following options are for use with other similar messaging systems, for exam
     * default `window.addEventListener`
 * `options.removeListener` - function that removes a listener
     * default `window.removeEventListener`
-* `options.postMessage` - function that posts a message
-    * default `window.postMessage`
 * `options.getMessageData` - a function that extracts data from the event object passed to a `message` event handler
     * default `(e) => e.data`
 
