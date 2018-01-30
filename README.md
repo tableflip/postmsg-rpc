@@ -51,7 +51,7 @@ const fruits = await getFruits(/*, arg0, arg1, ... */)
 
 #### `expose(funcName, func, options)`
 
-Expose `func` as `funcName` for RPC from other windows. Assumes that the function being called on target returns a promise.
+Expose `func` as `funcName` for RPC from other windows. Assumes that `func` returns a promise.
 
 * `funcName` - the name of the function called on the client
 * `func` - the function that should be called. Should be synchronous _or_ return a promise. For callbacks, pass `options.isCallback`
@@ -113,6 +113,14 @@ The following options are for use with other similar messaging systems, for exam
     * default `window.removeEventListener`
 * `options.getMessageData` - a function that extracts data from the event object passed to a `message` event handler
     * default `(e) => e.data`
+
+## Contribute
+
+Feel free to dive in! [Open an issue](https://github.com/tableflip/postmsg-rpc/issues/new) or submit PRs.
+
+## License
+
+[MIT](LICENSE) © Alan Shaw
 
 ---
 A [(╯°□°）╯︵TABLEFLIP](https://tableflip.io) side project.
