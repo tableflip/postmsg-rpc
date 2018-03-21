@@ -25,12 +25,12 @@
     "shortid": "^2.2.8"
   },
   "devDependencies": {
-    "ava": "^0.24.0",
+    "ava": "^0.25.0",
     "babel-cli": "^6.26.0",
     "babel-preset-env": "^1.6.1",
     "npm-run-all": "^4.1.2",
     "nyc": "^11.3.0",
-    "standard": "^10.0.3"
+    "standard": "^11.0.1"
   },
   "ava": {
     "require": [

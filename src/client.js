@@ -20,19 +20,19 @@ export default function caller (funcName, opts) {
     let cancel
 
     const response = new Promise((resolve, reject) => {
-      const handler = (e) => {
-        const data = getMessageData(e)
+      const handler = function () {
+        const data = getMessageData.apply(null, arguments)
         if (!data) return
         if (data.sender !== 'postmsg-rpc/server' || data.id !== msg.id) return
         removeListener('message', handler)
 
-        if (e.data.err) {
+        if (data.err) {
           const err = new Error(`Unexpected error calling ${funcName}`)
           Object.assign(err, data.err)
           return reject(err)
         }
 
-        resolve(e.data.res)
+        resolve(data.res)
       }
 
       cancel = () => {

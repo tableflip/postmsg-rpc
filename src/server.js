@@ -8,8 +8,8 @@ export default function expose (funcName, func, opts) {
   const getMessageData = opts.getMessageData || ((event) => event.data)
   const isCallback = opts.isCallback || false
 
-  const handler = (e) => {
-    const data = getMessageData(e)
+  const handler = function () {
+    const data = getMessageData.apply(null, arguments)
     if (!data) return
     if (data.sender !== 'postmsg-rpc/client' || data.func !== funcName) return
 
