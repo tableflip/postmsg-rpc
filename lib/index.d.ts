@@ -2,18 +2,21 @@ type MethodName = string
 type Method<Args, Returning> = (...Args) => Returning | Promise<Returning>
 type Args = any[]
 
-type CallerOptions = {
-  targetOrigin?: string
+type Listener = (event: any) => void
+
+type BidirectionalMessagingOptions = {
+  addListener?: (eventName: string, handler: Listener) => void
+  removeListener?: (eventName: string, handler: Listener) => void
+  getMessageData?: (event: any) => any
   postMessage(data: any, targetOrigin?: string): void | Promise<void>
+  targetOrigin?: string
 }
 
-type ExposeOptions = {
+type CallerOptions = BidirectionalMessagingOptions
+type ExposeOptions = BidirectionalMessagingOptions & {
   isCallback?: boolean
-  targetOrigin?: string
-  postMessage(data: any, targetOrigin?: string): void | Promise<void>
 }
 
-// client.js
 export function caller<Returning extends any, Args extends any[]>(
   methodName: MethodName,
   options: CallerOptions
@@ -24,7 +27,6 @@ export function call<Returning extends any, Args extends any[]>(
   ...args: Args
 ): Promise<Returning>
 
-// server.js
 export function expose<Returning extends any, Args extends any[]>(
   methodName: MethodName,
   method: Method<Args, Returning>,
