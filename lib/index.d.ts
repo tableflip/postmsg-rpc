@@ -1,8 +1,9 @@
-type MethodName = string
-type Method<Args, Returning> = (...Args) => Returning | Promise<Returning>
-type Args = any[]
+export type MethodName = string
+export type Method<Args, Returning> = (
+  ...Args
+) => Returning | Promise<Returning>
 
-type Listener = (event: any) => void
+export type Listener = (event: any) => void
 
 type BidirectionalMessagingOptions = {
   addListener?: (eventName: string, handler: Listener) => void
@@ -12,8 +13,8 @@ type BidirectionalMessagingOptions = {
   targetOrigin?: string
 }
 
-type CallerOptions = BidirectionalMessagingOptions
-type ExposeOptions = BidirectionalMessagingOptions & {
+export type CallerOptions = BidirectionalMessagingOptions
+export type ExposeOptions = BidirectionalMessagingOptions & {
   isCallback?: boolean
 }
 
